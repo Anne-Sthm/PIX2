@@ -13,9 +13,11 @@
 #define pwm_max 255
 
 
-int commande;
+int command;
 
 void setup() {
+
+  Serial.begin(9600);
 
   // Pins setup
   pinMode(pot, INPUT);
@@ -26,7 +28,17 @@ void setup() {
 
 void loop() {
 
-  commande=map(analogRead(pot), CAN_min, CAN_max, pwm_min, pwm_max);
-  analogWrite(pwm, commande); 
+  // CAN range to pwm range
+  command = map(analogRead(pot), CAN_min, CAN_max, pwm_min, pwm_max);
+
+  // Group by value
+  if (command < 16) command=0;
+  command = command > 15 ? 85 : command;
+  command = command > 85 ? 170 : command;
+  command = command > 170 ? 255 : command;
+  
+  analogWrite(pwm, command);
+
+  Serial.print(command); 
 
 }
